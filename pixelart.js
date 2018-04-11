@@ -1,5 +1,6 @@
 var area = $("#area");
 activeColorTag = $("#activeColor");
+const noColor="#ffffff";
 
 var currentMap = {
     width: 30,
@@ -141,19 +142,7 @@ function loadImage() {
 
 function setup() {
     updateActiveColor("red");
-    currentMap.points = new Array(currentMap.height);
-    for(var i=0;i<currentMap.points.length;i++)
-    {
-        currentMap.points[i] = new Array(currentMap.width);
-        for (var j=0; j<currentMap.points[i].length; j++)
-        {
-            currentMap.points[i][j] = {
-               id: `${i}_${j}`,
-               hex: "#ffffff" 
-            };
-        }
-    }
-    build();
+    clearImage();
 }
 
 function floodFill(i, j, targetColor, replacementColor) {
@@ -171,6 +160,23 @@ function floodFill(i, j, targetColor, replacementColor) {
     floodFill(i, j+1, targetColor, replacementColor);
 }
 
+function clearImage()
+{
+    currentMap.points = new Array(currentMap.height);
+    for(var i=0;i<currentMap.points.length;i++)
+    {
+        currentMap.points[i] = new Array(currentMap.width);
+        for (var j=0; j<currentMap.points[i].length; j++)
+        {
+            currentMap.points[i][j] = {
+               id: `${i}_${j}`,
+               hex: noColor 
+            };
+        }
+    }
+    build();
+}
+
 $(document).ready(setup);
 activeColorTag.change(selectColor);
 $("#palette").mouseup(selectColor);
@@ -180,3 +186,4 @@ area.contextmenu((e)=>e.preventDefault());
 area.on("touchmove", mouseMove);
 $("#save").click(saveImage);
 $("#load").click(loadImage);
+$("#clear").click(clearImage);

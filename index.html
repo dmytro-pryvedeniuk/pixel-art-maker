@@ -2,22 +2,21 @@
     <head>
         <title>Pixel art</title>
         <link rel="stylesheet" type="text/css" href="pixelart.css">
-        <meta name="viewport" content="width=device-width,user-scalable=no">        
+        <meta name="viewport" content="width=device-width,user-scalable=no">
     </head>
     <body>
         <div id="area"></div>
         <div id="palette">
             <div id="colorpalette"></div>
-            <span>Current color</span><input type="color" id="activeColor"/>
+            <span>Current color</span>
+            <input type="color" id="activeColor"/>
             <button id="save">Save</button>
             <button id="load">Load</button>
+            <button id="clear">Clear</button>
             <input id="floodfill" type="checkbox">Flood fill</input>
         </div>
         <div id="hiddenPixel"/>
-<script
-  src="http://code.jquery.com/jquery-3.3.1.min.js"
-  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-  crossorigin="anonymous"></script>
+        <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
         <script src="pixelart.js"></script>
     </body>
 </html>
