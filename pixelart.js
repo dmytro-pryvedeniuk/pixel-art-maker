@@ -70,7 +70,7 @@ function mouseMove(e) {
     {
         el = e.target;
     }
-    else if (e.touches)
+    else if (e.touches && e.touches.length == 1)
     {
         var touch = e.changedTouches[0];
         el = document.elementFromPoint(touch.clientX, touch.clientY);
