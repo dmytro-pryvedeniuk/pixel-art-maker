@@ -4,69 +4,63 @@ activeColorTag = $("#activeColor");
 var currentMap = {
     width: 30,
     height: 30,
-    points: [],
+    points: [[]],
     activeColor: null
 };
 
 function build() {
     area.empty();
-
-    for (i = 0; i < currentMap.height; i++) {
-        let row = area.append('<div className="rowblock">');
-
-        for (j = 0; j < currentMap.width; j++) {
-            let blockId = '${i}:${j}';
-            let color = null; 
-            var point = currentMap.points.find(p=>p.id == blockId);
-            if (point)
-                color = point.hex;
-
-            $("<div>", 
-            {
-                id: blockId,
-                class: "block"
-            }).css('background-color', color)
-            .appendTo(row);
+    for (i = 0; i < currentMap.points.length; i++) {
+        area.append(`<div id="row${i}" class="rowblock">`);
+        var row = $(`#row${i}`);    
+        for (j = 0; j < currentMap.points[i].length; j++)
+        {
+            var point = currentMap.points[i][j];
+            row.append(`<div id="${point.id}" class="block" data-i="${i}" data-j="${j}">`);
         }
     }
+    updateAllPixels();
     buildPalette();
 }
 
+function updateAllPixels() {
+    for (let i=0; i < currentMap.points.length; i++)
+        for (let j=0; j < currentMap.points[i].length; j++)
+        {
+            let point = currentMap.points[i][j];
+            $(`#${point.id}`).css('background-color', point.hex);
+        }
+}
+
 function drawPixel(e) {
-    if (e.target.className == "block") {
-        let initialColor = e.target.style.background;
-        var id = e.target.id;
-        var color = activeColorTag.val();
+    let el = $(e.target);
 
-        if (document.getElementById("floodfill").checked)
-            floodFill(e.target, initialColor, color);
+    if (el.hasClass("block")) {
+        var colorToUse = colorToHex(activeColorTag.val());
+        let i = parseInt(el.attr('data-i'));
+        let j = parseInt(el.attr('data-j'));
 
-        e.target.style.background = color;
-        updateMap(id, color);
+        if ($("#floodfill").is(":checked"))
+        {
+            let initialColor = colorToHex(el.css("background-color"));
+            floodFill(i, j, initialColor, colorToUse);
+        }
+        else
+        {
+            updateMap(i, j, colorToUse);
+        }
+        updateAllPixels();
     }
 }
 
-function updateMap(id, color) {
-    var point = currentMap.points.find(p=>p.id == id);
-    if (!point) {
-        point = {};
-        currentMap.points.push(point);
-    }
-    point["id"] = id;
-    point["hex"] = color;
+function updateMap(i, j, color) {
+    var point = currentMap.points[i][j];
+    point.hex = color;
 }
 
 function mouseMove(e) {
-    function buttonPressed(event) {
-        if (event.buttons == null)
-            return event.which != 0;
-        else
-            return event.buttons != 0;
-    }
-
-    if (!buttonPressed(e))
-        return;
-    drawPixel(e);
+    if (e.which != 0)
+        drawPixel(e);
 }
 
 function buildPalette() {
@@ -78,12 +72,11 @@ function buildPalette() {
     for (var i in colors) {
         $('<div>', {
             class: "colorBlock"
-        }).css("background-color", colors[i])
-        .appendTo(container);
+        }).css("background-color", colors[i]).appendTo(container);
     }
 }
 
-function colorToHex(colorName) {
+function colorToHex(color) {
     function componentToHex(c) {
         var hex = c.toString(16);
         return hex.length == 1 ? "0" + hex : hex;
@@ -94,7 +87,7 @@ function colorToHex(colorName) {
     }
 
     d = $("#hiddenPixel");
-    d.css("color", colorName);
+    d.css("color", color);
     var rgbColor = d.css("color");
     var res = rgbColor.match(/\d+/g).map(x=>parseInt(x));
     return rgbToHex(...res);
@@ -129,45 +122,36 @@ function loadImage() {
     }
 }
 
-function setup()
-{
+function setup() {
     updateActiveColor("red");
+    currentMap.points = new Array(currentMap.height);
+    for(var i=0;i<currentMap.points.length;i++)
+    {
+        currentMap.points[i] = new Array(currentMap.width);
+        for (var j=0; j<currentMap.points[i].length; j++)
+        {
+            currentMap.points[i][j] = {
+               id: `${i}_${j}`,
+               hex: "#ffffff" 
+            };
+        }
+    }
     build(30, 30);
 }
 
-function floodFill(node, targetColor, replacementColor) {
-    if (!node)
+function floodFill(i, j, targetColor, replacementColor) {
+    if (i < 0 || j < 0 || i >= currentMap.height || j >= currentMap.width)
         return;
     if (targetColor == replacementColor)
         return;
-    if (node.style.background != targetColor)
+    if (currentMap.points[i][j].hex != targetColor)
         return;
+    updateMap(i, j, replacementColor);
 
-    node.style.background = replacementColor;
-    updateMap(node.id, replacementColor);
-
-    // west
-    floodFill(node.previousSibling, targetColor, replacementColor);
-    // east
-    floodFill(node.nextSibling, targetColor, replacementColor);
-    // north
-    var row = node.parentNode.previousSibling;
-    floodFill(getParallelPixel(node, row), targetColor, replacementColor);
-    //south
-    row = node.parentNode.nextSibling;
-    floodFill(getParallelPixel(node, row), targetColor, replacementColor);
-
-    function getParallelPixel(el, row) {
-        if (!row)
-            return;
-        var curr = el.previousSibling;
-        var anotherCurr = row.firstChild;
-        while (curr != null) {
-            anotherCurr = anotherCurr.nextSibling;
-            curr = curr.previousSibling;
-        }
-        return anotherCurr;
-    }
+    floodFill(i-1, j, targetColor, replacementColor);
+    floodFill(i+1, j, targetColor, replacementColor);
+    floodFill(i, j-1, targetColor, replacementColor);
+    floodFill(i, j+1, targetColor, replacementColor);
 }
 
 $(document).ready(setup);
