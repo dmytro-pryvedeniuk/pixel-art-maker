@@ -67,7 +67,13 @@ function mouseMove(e) {
         var touch = e.changedTouches[0];
         el = document.elementFromPoint(touch.clientX, touch.clientY);
     }
-    drawPixel($(el));
+    
+    if (el != null)
+    {
+        e.stopPropagation();
+        e.preventDefault();
+        drawPixel($(el));
+    }
 }
 
 function mouseDown(e){
