@@ -32,9 +32,7 @@ function updateAllPixels() {
         }
 }
 
-function drawPixel(e) {
-    let el = $(e.target);
-
+function drawPixel(el) {
     if (el.hasClass("block")) {
         var colorToUse = colorToHex(activeColorTag.val());
         let i = parseInt(el.attr('data-i'));
@@ -59,8 +57,21 @@ function updateMap(i, j, color) {
 }
 
 function mouseMove(e) {
+    let el = null;
     if (e.which != 0)
-        drawPixel(e);
+    {
+        el = e.target;
+    }
+    else if (e.touches)
+    {
+        var touch = e.changedTouches[0];
+        el = document.elementFromPoint(touch.clientX, touch.clientY);
+    }
+    drawPixel($(el));
+}
+
+function mouseDown(e){
+    drawPixel($(e.target));    
 }
 
 function buildPalette() {
@@ -136,7 +147,7 @@ function setup() {
             };
         }
     }
-    build(30, 30);
+    build();
 }
 
 function floodFill(i, j, targetColor, replacementColor) {
@@ -158,7 +169,8 @@ $(document).ready(setup);
 activeColorTag.change(selectColor);
 $("#palette").mouseup(selectColor);
 area.mousemove(mouseMove);
-area.mousedown(drawPixel);
+area.mousedown(mouseDown);
 area.contextmenu((e)=>e.preventDefault());
+area.on("touchmove", mouseMove);
 $("#save").click(saveImage);
 $("#load").click(loadImage);
