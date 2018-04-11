@@ -11,13 +11,20 @@ var currentMap = {
 
 function build() {
     area.empty();
+    var widthInBlocks = area.width()/currentMap.points[0].length;
+    let rowHeight = area.width() / widthInBlocks;
+    let blockWidth = rowHeight; 
+
     for (i = 0; i < currentMap.points.length; i++) {
         area.append(`<div id="row${i}" class="rowblock">`);
-        var row = $(`#row${i}`);    
+        var row = $(`#row${i}`);
         for (j = 0; j < currentMap.points[i].length; j++)
         {
             var point = currentMap.points[i][j];
             row.append(`<div id="${point.id}" class="block" data-i="${i}" data-j="${j}">`);
+            var block = $(`#${point.id}`);
+            block.width(`${widthInBlocks}`); 
+            block.height(block.width());
         }
     }
     updateAllPixels();

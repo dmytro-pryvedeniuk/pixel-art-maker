@@ -1,26 +1,21 @@
 body{
     font-family: "Courier New";
-    margin:20px;
 }
 
 #area {
     background:azure;
     border: 2px solid black;
-    width:max-content;
+    width:95%;
     margin:auto;
 }
 
 .rowblock{
-    width: max-content;
     margin: auto;
 }
 
 .block {
-    width: 13px;
-    height: 13px;
     background: white;
-    border:1px solid gray;
-    margin:0px;
+    outline: 1px solid gray;    
     display: inline-block;
 }
 
